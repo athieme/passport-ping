@@ -57,6 +57,7 @@ function Strategy(options , verify) {
 };
 
 Strategy.prototype.userProfile = function (accessToken , done) {
+    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!! accessToken = ' + accessToken);
     done(null , { displayName : accessToken });
 };
 
