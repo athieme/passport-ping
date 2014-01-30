@@ -42,7 +42,7 @@ var InternalOAuthError = require('passport-oauth').InternalOAuthError;
  * @param {Function} verify
  * @api public
  */
-exports.Strategy = function (options , verify) {
+function Strategy (options , verify) {
     options = options || {};
     options.requestTokenURL = options.requestTokenURL || 'https://api.linkedin.com/uas/oauth/requestToken';
     options.accessTokenURL = options.accessTokenURL || 'https://api.linkedin.com/uas/oauth/accessToken';
@@ -89,7 +89,7 @@ exports.Strategy = function (options , verify) {
             }
         });
     }
-}
+};
 
 /**
  * Inherit from `OAuthStrategy`.
@@ -116,7 +116,7 @@ Strategy.prototype.authenticate = function (req , options) {
 
     // Call the base class for standard OAuth authentication.
     OAuthStrategy.prototype.authenticate.call(this , req , options);
-}
+};
 
 /**
  * Retrieve user profile from LinkedIn.
@@ -168,7 +168,7 @@ Strategy.prototype.userProfile = function (token , tokenSecret , params , done) 
             done(e);
         }
     });
-}
+};
 
 /**
  * Return extra LinkedIn-specific parameters to be included in the request token
@@ -192,7 +192,7 @@ Strategy.prototype.requestTokenParams = function (options) {
         params['scope'] = scope;
     }
     return params;
-}
+};
 
 Strategy.prototype._convertProfileFields = function (profileFields) {
     var map = {
@@ -219,4 +219,11 @@ Strategy.prototype._convertProfileFields = function (profileFields) {
     });
 
     return fields.join(',');
-}
+};
+
+
+/**
+ * Expose `Strategy`.
+ */
+module.exports = Strategy;
+
