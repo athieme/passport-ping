@@ -59,7 +59,7 @@ function Strategy(options , verify) {
     }
 
     OAuth2Strategy.call(this , options , verify);
-    this.name = 'github';
+    this.name = 'ping';
     this._userProfileURL = options.userProfileURL || 'https://api.github.com/user';
 };
 
