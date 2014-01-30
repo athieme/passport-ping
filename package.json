@@ -1,0 +1,17 @@
+{
+    "name" : "passport-ping" ,
+    "version" : "0.0.0" ,
+    "description" : "PingFederate authentication strategy for Passport" ,
+    "main" : "index.js" ,
+    "repository" : {
+        "type" : "git" ,
+        "url" : "https://github.com/athieme/passport-ping.git"
+    } ,
+    "bugs" : {
+        "url" : "https://github.com/athieme/passport-ping/issues"
+    } ,
+    "homepage" : "https://github.com/athieme/passport-ping" ,
+    "dependencies" : {
+        "passport-oauth" : "1.0.0"
+    }
+}
