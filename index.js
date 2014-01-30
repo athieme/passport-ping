@@ -3,35 +3,40 @@
  */
 
 var util = require('util');
-var url = require('url');
-var querystring = require('querystring');
-var OAuthStrategy = require('passport-oauth').OAuthStrategy;
+var OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
 var InternalOAuthError = require('passport-oauth').InternalOAuthError;
 
 /**
  * `Strategy` constructor.
  *
- * The LinkedIn authentication strategy authenticates requests by delegating to
- * LinkedIn using the OAuth protocol.
+ * The GitHub authentication strategy authenticates requests by delegating to
+ * GitHub using the OAuth 2.0 protocol.
  *
- * Applications must supply a `verify` callback which accepts a `token`,
- * `tokenSecret` and service-specific `profile`, and then calls the `done`
+ * Applications must supply a `verify` callback which accepts an `accessToken`,
+ * `refreshToken` and service-specific `profile`, and then calls the `done`
  * callback supplying a `user`, which should be set to `false` if the
- * credentials are not valid.  If an exception occured, `err` should be set.
+ * credentials are not valid.  If an exception occurred, `err` should be set.
  *
  * Options:
- *   - `consumerKey`     identifies client to LinkedIn
- *   - `consumerSecret`  secret used to establish ownership of the consumer key
- *   - `callbackURL`     URL to which LinkedIn will redirect the user after obtaining authorization
+ *   - `clientID`      your GitHub application's Client ID
+ *   - `clientSecret`  your GitHub application's Client Secret
+ *   - `callbackURL`   URL to which GitHub will redirect the user after granting authorization
+ *   - `scope`         array of permission scopes to request.  valid scopes include:
+ *                     'user', 'public_repo', 'repo', 'gist', or none.
+ *                     (see http://developer.github.com/v3/oauth/#scopes for more info)
+ *   — `userAgent`     All API requests MUST include a valid User Agent string.
+ *                     e.g: domain name of your application.
+ *                     (see http://developer.github.com/v3/#user-agent-required for more info)
  *
  * Examples:
  *
- *     passport.use(new LinkedInStrategy({
- *         consumerKey: '123-456-789',
- *         consumerSecret: 'shhh-its-a-secret'
- *         callbackURL: 'https://www.example.net/auth/linkedin/callback'
+ *     passport.use(new GitHubStrategy({
+ *         clientID: '123-456-789',
+ *         clientSecret: 'shhh-its-a-secret'
+ *         callbackURL: 'https://www.example.net/auth/github/callback',
+ *         userAgent: 'myapp.com'
  *       },
- *       function(token, tokenSecret, profile, done) {
+ *       function(accessToken, refreshToken, profile, done) {
  *         User.findOrCreate(..., function (err, user) {
  *           done(err, user);
  *         });
@@ -44,104 +49,44 @@ var InternalOAuthError = require('passport-oauth').InternalOAuthError;
  */
 function Strategy(options , verify) {
     options = options || {};
-    options.requestTokenURL = options.requestTokenURL || 'https://api.linkedin.com/uas/oauth/requestToken';
-    options.accessTokenURL = options.accessTokenURL || 'https://api.linkedin.com/uas/oauth/accessToken';
-    options.userAuthorizationURL = options.userAuthorizationURL || 'https://www.linkedin.com/uas/oauth/authenticate';
-    options.sessionKey = options.sessionKey || 'oauth:linkedin';
+    options.authorizationURL = options.authorizationURL || 'https://github.com/login/oauth/authorize';
+    options.tokenURL = options.tokenURL || 'https://github.com/login/oauth/access_token';
+    options.scopeSeparator = options.scopeSeparator || ',';
+    options.customHeaders = options.customHeaders || {};
 
-    OAuthStrategy.call(this , options , verify);
-    this.name = 'linkedin';
-    this._profileFields = options.profileFields || null;
-
-    // LinkedIn accepts an extended "scope" parameter when obtaining a request.
-    // Unfortunately, it wants this as a URL query parameter, rather than encoded
-    // in the POST body (which is the more established and supported mechanism of
-    // extending OAuth).
-    //
-    // Monkey-patch the underlying node-oauth implementation to add these extra
-    // parameters as URL query parameters.
-    this._oauth.getOAuthRequestToken = function (extraParams , callback) {
-        if (typeof extraParams == "function") {
-            callback = extraParams;
-            extraParams = {};
-        }
-
-        var requestUrl = this._requestUrl;
-        if (extraParams.scope) {
-            requestUrl = requestUrl += ('?scope=' + extraParams.scope);
-            delete extraParams.scope;
-        }
-
-        // Callbacks are 1.0A related
-        if (this._authorize_callback) {
-            extraParams["oauth_callback"] = this._authorize_callback;
-        }
-        this._performSecureRequest(null , null , this._clientOptions.requestTokenHttpMethod , requestUrl , extraParams , null , null , function (error , data , response) {
-            if (error) callback(error);
-            else {
-                var results = querystring.parse(data);
-
-                var oauth_token = results["oauth_token"];
-                var oauth_token_secret = results["oauth_token_secret"];
-                delete results["oauth_token"];
-                delete results["oauth_token_secret"];
-                callback(null , oauth_token , oauth_token_secret , results);
-            }
-        });
+    if (!options.customHeaders['User-Agent']) {
+        options.customHeaders['User-Agent'] = options.userAgent || 'passport-github';
     }
+
+    OAuth2Strategy.call(this , options , verify);
+    this.name = 'github';
+    this._userProfileURL = options.userProfileURL || 'https://api.github.com/user';
 };
 
 /**
- * Inherit from `OAuthStrategy`.
+ * Inherit from `OAuth2Strategy`.
  */
-util.inherits(Strategy , OAuthStrategy);
+util.inherits(Strategy , OAuth2Strategy);
+
 
 /**
- * Authenticate request by delegating to LinkedIn using OAuth.
- *
- * @param {Object} req
- * @api protected
- */
-Strategy.prototype.authenticate = function (req , options) {
-    // When a user denies authorization on LinkedIn, they are presented with a
-    // link to return to the application in the following format:
-    //
-    //     http://www.example.com/auth/linkedin/callback?oauth_problem=user_refused
-    //
-    // Following the link back to the application is interpreted as an
-    // authentication failure.
-    if (req.query && req.query.oauth_problem) {
-        return this.fail();
-    }
-
-    // Call the base class for standard OAuth authentication.
-    OAuthStrategy.prototype.authenticate.call(this , req , options);
-};
-
-/**
- * Retrieve user profile from LinkedIn.
+ * Retrieve user profile from GitHub.
  *
  * This function constructs a normalized profile, with the following properties:
  *
- *   - `id`
- *   - `displayName`
- *   - `name.familyName`
- *   - `name.givenName`
+ *   - `provider`         always set to `github`
+ *   - `id`               the user's GitHub ID
+ *   - `username`         the user's GitHub username
+ *   - `displayName`      the user's full name
+ *   - `profileUrl`       the URL of the profile for the user on GitHub
+ *   - `emails`           the user's email addresses
  *
- * @param {String} token
- * @param {String} tokenSecret
- * @param {Object} params
+ * @param {String} accessToken
  * @param {Function} done
  * @api protected
  */
-Strategy.prototype.userProfile = function (token , tokenSecret , params , done) {
-    var url = 'https://api.linkedin.com/v1/people/~:(id,first-name,last-name)?format=json';
-    if (this._profileFields) {
-        var fields = this._convertProfileFields(this._profileFields);
-        url = 'https://api.linkedin.com/v1/people/~:(' + fields + ')?format=json';
-    }
-
-    this._oauth.get(url , token , tokenSecret , function (err , body , res) {
+Strategy.prototype.userProfile = function (accessToken , done) {
+    this._oauth2.get(this._userProfileURL , accessToken , function (err , body , res) {
         if (err) {
             return done(new InternalOAuthError('failed to fetch user profile' , err));
         }
@@ -149,16 +94,14 @@ Strategy.prototype.userProfile = function (token , tokenSecret , params , done) 
         try {
             var json = JSON.parse(body);
 
-            var profile = { provider : 'linkedin' };
+            var profile = { provider : 'github' };
             profile.id = json.id;
-            profile.displayName = json.firstName + ' ' + json.lastName;
-            profile.name = { familyName : json.lastName ,
-                givenName : json.firstName };
-            if (json.emailAddress) {
-                profile.emails = [
-                    { value : json.emailAddress }
-                ];
-            }
+            profile.displayName = json.name;
+            profile.username = json.login;
+            profile.profileUrl = json.html_url;
+            profile.emails = [
+                { value : json.email }
+            ];
 
             profile._raw = body;
             profile._json = json;
@@ -168,57 +111,6 @@ Strategy.prototype.userProfile = function (token , tokenSecret , params , done) 
             done(e);
         }
     });
-};
-
-/**
- * Return extra LinkedIn-specific parameters to be included in the request token
- * request.
- *
- * References:
- *   https://developer.linkedin.com/documents/authentication#granting
- *
- * @param {Object} options
- * @return {Object}
- * @api protected
- */
-Strategy.prototype.requestTokenParams = function (options) {
-    var params = {};
-
-    var scope = options.scope;
-    if (scope) {
-        if (Array.isArray(scope)) {
-            scope = scope.join('+');
-        }
-        params['scope'] = scope;
-    }
-    return params;
-};
-
-Strategy.prototype._convertProfileFields = function (profileFields) {
-    var map = {
-        'id' : 'id' ,
-        'name' : ['first-name', 'last-name'] ,
-        'emails' : 'email-address'
-    };
-
-    var fields = [];
-
-    profileFields.forEach(function (f) {
-        // return raw LinkedIn profile field to support the many fields that don't
-        // map cleanly to Portable Contacts
-        if (typeof map[f] === 'undefined') {
-            return fields.push(f);
-        }
-        ;
-
-        if (Array.isArray(map[f])) {
-            Array.prototype.push.apply(fields , map[f]);
-        } else {
-            fields.push(map[f]);
-        }
-    });
-
-    return fields.join(',');
 };
 
 exports.Strategy = Strategy;
