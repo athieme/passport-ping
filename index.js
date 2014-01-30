@@ -4,7 +4,6 @@
 
 var util = require('util');
 var OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
-var InternalOAuthError = require('passport-oauth').InternalOAuthError;
 
 /**
  * `Strategy` constructor.
@@ -21,20 +20,13 @@ var InternalOAuthError = require('passport-oauth').InternalOAuthError;
  *   - `clientID`      your GitHub application's Client ID
  *   - `clientSecret`  your GitHub application's Client Secret
  *   - `callbackURL`   URL to which GitHub will redirect the user after granting authorization
- *   - `scope`         array of permission scopes to request.  valid scopes include:
- *                     'user', 'public_repo', 'repo', 'gist', or none.
- *                     (see http://developer.github.com/v3/oauth/#scopes for more info)
- *   — `userAgent`     All API requests MUST include a valid User Agent string.
- *                     e.g: domain name of your application.
- *                     (see http://developer.github.com/v3/#user-agent-required for more info)
  *
  * Examples:
  *
- *     passport.use(new GitHubStrategy({
- *         clientID: '123-456-789',
- *         clientSecret: 'shhh-its-a-secret'
- *         callbackURL: 'https://www.example.net/auth/github/callback',
- *         userAgent: 'myapp.com'
+ *     passport.use(new Strategy({
+ *         clientID: '123-456-789' ,
+ *         clientSecret: 'shhh-its-a-secret' ,
+ *         callbackURL: 'https://www.example.net/auth/github/callback'
  *       },
  *       function(accessToken, refreshToken, profile, done) {
  *         User.findOrCreate(..., function (err, user) {
@@ -54,16 +46,12 @@ function Strategy(options , verify) {
 
     OAuth2Strategy.call(this , options , verify);
     this.name = 'ping';
-};
+}
+
+util.inherits(Strategy , OAuth2Strategy);
 
 Strategy.prototype.userProfile = function (accessToken , done) {
-    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!! accessToken = ' + accessToken);
     done(null , { displayName : accessToken });
 };
-
-/**
- * Inherit from `OAuth2Strategy`.
- */
-util.inherits(Strategy , OAuth2Strategy);
 
 exports.Strategy = Strategy;
