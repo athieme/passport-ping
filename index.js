@@ -51,10 +51,13 @@ function Strategy(options , verify) {
     options = options || {};
     options.authorizationURL = options.authorizationURL || 'https://localhost:9031/as/authorization.oauth2';
     options.tokenURL = options.tokenURL || 'https://localhost:9031/as/token.oauth2';
-    options.skipUserProfile = true;
 
     OAuth2Strategy.call(this , options , verify);
     this.name = 'ping';
+};
+
+Strategy.prototype.userProfile = function (accessToken , done) {
+    done(null , { displayName : accessToken });
 };
 
 /**
