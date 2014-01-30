@@ -42,7 +42,7 @@ var InternalOAuthError = require('passport-oauth').InternalOAuthError;
  * @param {Function} verify
  * @api public
  */
-function Strategy (options , verify) {
+function Strategy(options , verify) {
     options = options || {};
     options.requestTokenURL = options.requestTokenURL || 'https://api.linkedin.com/uas/oauth/requestToken';
     options.accessTokenURL = options.accessTokenURL || 'https://api.linkedin.com/uas/oauth/accessToken';
@@ -221,9 +221,4 @@ Strategy.prototype._convertProfileFields = function (profileFields) {
     return fields.join(',');
 };
 
-
-/**
- * Expose `Strategy`.
- */
-module.exports = Strategy;
-
+exports.Strategy = Strategy;
