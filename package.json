@@ -5,10 +5,10 @@
     "keywords" : [ "passport", "ping", "pingfederate" , "federate" , "auth", "authn", "authentication", "identity" ] ,
     "repository" : {
         "type" : "git" ,
-        "url" : "https://github.com/athieme/passport-ping.git"
+        "url" : "https://github.com/mulesoft/passport-ping.git"
     } ,
     "bugs" : {
-        "url" : "https://github.com/athieme/passport-ping/issues"
+        "url" : "https://github.com/mulesoft/passport-ping/issues"
     } ,
     "author" : {
         "name" : "MuleSoft, Inc." ,
@@ -20,7 +20,7 @@
             "url" : "http://www.opensource.org/licenses/MIT"
         }
     ] ,
-    "homepage" : "https://github.com/athieme/passport-ping" ,
+    "homepage" : "https://github.com/mulesoft/passport-ping" ,
     "main" : "./lib/passport-ping" ,
     "dependencies" : {
         "pkginfo" : "0.2.x" ,
