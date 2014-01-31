@@ -20,15 +20,42 @@ unobtrusively integrated into any application or framework that supports
 The PingFederate authentication strategy authenticates users using PingFederate
 and OAuth 2.0 tokens.  The strategy requires a `verify` callback, which accepts
 these credentials and calls `done` providing a user, as well as `options`
-specifying a client ID, client secret, and callback URL.
+specifying a host, port, client ID, client secret, and callback URL.
 
     passport.use(new PingStrategy({
-        clientID: PING_CLIENT_ID,
-        clientSecret: PING_CLIENT_SECRET,
-        callbackURL: "http://127.0.0.1:3000/auth/ping/callback"
+        clientID: '123-456-789' ,
+        clientSecret: 'shhh-its-a-secret' ,
+        callbackURL: 'https://www.example.net/auth/ping/callback'
       },
       function(accessToken, refreshToken, profile, done) {
-        User.findOrCreate({ ... }, function (err, user) {
+        User.findOrCreate(..., function (err, user) {
+          return done(err, user);
+        });
+      }
+    ));
+
+    passport.use(new PingStrategy({
+        host: 'localhost' ,
+        clientID: '123-456-789' ,
+        clientSecret: 'shhh-its-a-secret' ,
+        callbackURL: 'https://www.example.net/auth/ping/callback'
+      },
+      function(accessToken, refreshToken, profile, done) {
+        User.findOrCreate(..., function (err, user) {
+          return done(err, user);
+        });
+      }
+    ));
+
+    passport.use(new PingStrategy({
+        host: 'localhost' ,
+        port: 9031 ,
+        clientID: '123-456-789' ,
+        clientSecret: 'shhh-its-a-secret' ,
+        callbackURL: 'https://www.example.net/auth/ping/callback'
+      },
+      function(accessToken, refreshToken, profile, done) {
+        User.findOrCreate(..., function (err, user) {
           return done(err, user);
         });
       }
