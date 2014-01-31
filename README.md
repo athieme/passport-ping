@@ -1,7 +1,8 @@
 # Passport-Ping
 
 [Passport](http://passportjs.org/) strategy for authenticating with [PingFederate](https://pingidentity.com/)
-using the OAuth 2.0 API.
+using the OAuth 2.0 API. This assumes you have a properly configured and running
+PingFederate server.
 
 This module lets you authenticate using PingFederate in your Node.js applications.
 By plugging into Passport, PingFederate authentication can be easily and
@@ -86,5 +87,3 @@ application:
 ## License
 
 [The MIT License](http://opensource.org/licenses/MIT)
-
-Copyright (c) 2013 MuleSoft, Inc.  All rights reserved.  http://www.mulesoft.com

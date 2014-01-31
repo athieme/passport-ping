@@ -1,18 +1,19 @@
 {
     "name" : "passport-ping" ,
-    "version" : "0.0.0" ,
+    "version" : "0.1.0" ,
     "description" : "PingFederate authentication strategy for Passport" ,
     "keywords" : [ "passport", "ping", "pingfederate" , "federate" , "auth", "authn", "authentication", "identity" ] ,
     "repository" : {
         "type" : "git" ,
-        "url" : "https://github.com/mulesoft/passport-ping.git"
+        "url" : "https://github.com/athieme/passport-ping.git"
     } ,
     "bugs" : {
-        "url" : "https://github.com/mulesoft/passport-ping/issues"
+        "url" : "https://github.com/athieme/passport-ping/issues"
     } ,
     "author" : {
-        "name" : "MuleSoft, Inc." ,
-        "url" : "https://github.com/mulesoft/"
+        "name" : "Alex Thieme" ,
+        "email" : "athieme@athieme.com" ,
+        "url" : "https://github.com/athieme/"
     } ,
     "licenses" : [
         {
@@ -20,7 +21,7 @@
             "url" : "http://www.opensource.org/licenses/MIT"
         }
     ] ,
-    "homepage" : "https://github.com/mulesoft/passport-ping" ,
+    "homepage" : "https://github.com/athieme/passport-ping" ,
     "main" : "./lib/passport-ping" ,
     "dependencies" : {
         "pkginfo" : "0.2.x" ,
