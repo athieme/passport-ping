@@ -1,6 +1,6 @@
 {
     "name" : "passport-ping" ,
-    "version" : "0.1.0" ,
+    "version" : "0.1.1" ,
     "description" : "PingFederate authentication strategy for Passport" ,
     "keywords" : [ "passport", "ping", "pingfederate" , "federate" , "auth", "authn", "authentication", "identity" ] ,
     "repository" : {
