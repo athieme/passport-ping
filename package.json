@@ -7,21 +7,12 @@
         "type" : "git" ,
         "url" : "https://github.com/athieme/passport-ping.git"
     } ,
-    "bugs" : {
-        "url" : "https://github.com/athieme/passport-ping/issues"
-    } ,
     "author" : {
         "name" : "Alex Thieme" ,
         "email" : "athieme@athieme.com" ,
         "url" : "https://github.com/athieme/"
     } ,
-    "licenses" : [
-        {
-            "type" : "MIT" ,
-            "url" : "http://www.opensource.org/licenses/MIT"
-        }
-    ] ,
-    "homepage" : "https://github.com/athieme/passport-ping" ,
+    "license" : "MIT" ,
     "main" : "./lib/passport-ping" ,
     "dependencies" : {
         "pkginfo" : "0.2.x" ,
